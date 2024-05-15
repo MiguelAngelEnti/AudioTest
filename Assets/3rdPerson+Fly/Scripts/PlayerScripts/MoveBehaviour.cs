@@ -18,6 +18,23 @@ public class MoveBehaviour : GenericBehaviour
 	private bool jump;                              // Boolean to determine whether or not the player started a jump.
 	private bool isColliding;                       // Boolean to determine if the player has collided with an obstacle.
 
+	public AudioSource audioSource;
+
+	private AudioClip walkClip;
+	private AudioClip runClip;
+	private AudioClip jumpClip;
+
+	public AudioClip tileWalk;
+	public AudioClip tileRun;
+	public AudioClip tileJump;
+	public AudioClip grassWalk;
+	public AudioClip grassRun;
+	public AudioClip grassJump;
+	public AudioClip rockWalk;
+	public AudioClip rockRun;
+	public AudioClip rockJump;
+
+
 	// Start is always called after any Awake functions.
 	void Start()
 	{
@@ -39,7 +56,26 @@ public class MoveBehaviour : GenericBehaviour
 		if (!jump && Input.GetButtonDown(jumpButton) && behaviourManager.IsCurrentBehaviour(this.behaviourCode) && !behaviourManager.IsOverriding())
 		{
 			jump = true;
+			audioSource.clip = jumpClip;
+			audioSource.Play();
 		}
+
+		else if (speed > 0 && !jump)
+		{
+			if (behaviourManager.IsSprinting())
+			{
+				audioSource.clip = runClip;
+			}
+            else
+            {
+                audioSource.clip = walkClip;
+            }
+
+			if (!audioSource.isPlaying)
+			{
+				audioSource.Play();
+			}
+        }
 	}
 
 	// LocalFixedUpdate overrides the virtual function of the base class.
@@ -186,4 +222,26 @@ public class MoveBehaviour : GenericBehaviour
 		GetComponent<CapsuleCollider>().material.dynamicFriction = 0.6f;
 		GetComponent<CapsuleCollider>().material.staticFriction = 0.6f;
 	}
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Road"))
+		{
+			walkClip = tileWalk;
+			runClip = tileRun;
+			jumpClip = tileJump;
+		}
+        else if (collision.gameObject.CompareTag("Grass"))
+		{
+			walkClip = grassWalk;
+			runClip = grassRun;
+			jumpClip = grassJump;
+		}
+        else if (collision.gameObject.CompareTag("Stone"))
+		{
+			walkClip = rockWalk;
+			runClip = rockRun;
+			jumpClip = rockJump;
+		}
+    }
 }
